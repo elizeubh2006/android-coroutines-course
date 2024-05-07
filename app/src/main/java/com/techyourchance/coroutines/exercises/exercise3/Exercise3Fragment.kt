@@ -26,10 +26,10 @@ class Exercise3Fragment : BaseFragment() {
     private lateinit var btnGetReputation: Button
     private lateinit var txtElapsedTime: TextView
 
+    private var job:Job? = null
+    private var getReputationIsActive: Boolean = false
 
     private lateinit var getReputationEndpoint: GetReputationEndpoint
-
-    private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,12 +55,25 @@ class Exercise3Fragment : BaseFragment() {
         btnGetReputation = view.findViewById(R.id.btn_get_reputation)
         btnGetReputation.setOnClickListener {
             logThreadInfo("button callback")
+
             job = coroutineScope.launch {
+                var elapsedTime = 0L
+                while (isActive){
+                    txtElapsedTime.text = "Tempo decorrido: ${elapsedTime / 1000} segundos."
+                    delay(1000)
+                    elapsedTime += 1000
+                }
+            }
+            coroutineScope.launch {
                 btnGetReputation.isEnabled = false
                 val reputation = getReputationForUser(edtUserId.text.toString())
                 Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
                 btnGetReputation.isEnabled = true
+                job?.cancel()
             }
+
+            getReputationIsActive = true
+
         }
 
         return view
@@ -68,14 +81,30 @@ class Exercise3Fragment : BaseFragment() {
 
     override fun onStop() {
         super.onStop()
-        job?.cancel()
+        coroutineScope.coroutineContext.cancelChildren()
         btnGetReputation.isEnabled = true
+
+        if(getReputationIsActive){
+            txtElapsedTime.text = ""
+        }
     }
 
     private suspend fun getReputationForUser(userId: String): Int {
         return withContext(Dispatchers.Default) {
             logThreadInfo("getReputationForUser()")
             getReputationEndpoint.getReputation(userId)
+        }
+    }
+
+    private suspend fun updateElapsedTime(remainingTimeSeconds: Int) {
+        for (time in remainingTimeSeconds downTo 0) {
+            if (time > 0) {
+                logThreadInfo("updateRemainingTime: $time seconds")
+                txtElapsedTime.text = "$time seconds remaining"
+                delay(1000)
+            } else {
+                txtElapsedTime.text = "done!"
+            }
         }
     }
 

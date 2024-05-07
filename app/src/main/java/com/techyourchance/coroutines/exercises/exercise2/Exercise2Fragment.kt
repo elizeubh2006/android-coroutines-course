@@ -15,12 +15,15 @@ import com.techyourchance.coroutines.exercises.exercise1.GetReputationEndpoint
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class Exercise2Fragment : BaseFragment() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+
+    private var job: Job? = null
 
     override val screenTitle get() = ScreenReachableFromHome.EXERCISE_2.description
 
@@ -48,10 +51,11 @@ class Exercise2Fragment : BaseFragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
+
         btnGetReputation = view.findViewById(R.id.btn_get_reputation)
         btnGetReputation.setOnClickListener {
             logThreadInfo("button callback")
-            coroutineScope.launch {
+          job =  coroutineScope.launch {
                 btnGetReputation.isEnabled = false
                 val reputation = getReputationForUser(edtUserId.text.toString())
                 Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
@@ -77,5 +81,11 @@ class Exercise2Fragment : BaseFragment() {
         fun newInstance(): Fragment {
             return Exercise2Fragment()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        job?.cancel()
+        btnGetReputation.isEnabled = true
     }
 }
