@@ -43,18 +43,25 @@ class UiThreadDemoFragment : BaseFragment() {
 
         updateRemainingTime(benchmarkDurationSeconds)
 
-        logThreadInfo("benchmark started")
+        Thread {
+            logThreadInfo("benchmark started")
 
-        val stopTimeNano = System.nanoTime() + benchmarkDurationSeconds * 1_000_000_000L
+            val stopTimeNano = System.nanoTime() + benchmarkDurationSeconds * 1_000_000_000L
 
-        var iterationsCount: Long = 0
-        while (System.nanoTime() < stopTimeNano) {
-            iterationsCount++
-        }
 
-        logThreadInfo("benchmark completed")
+            var iterationsCount: Long = 0
+            while (System.nanoTime() < stopTimeNano) {
+                iterationsCount++
+            }
 
-        Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
+            logThreadInfo("benchmark completed")
+
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
+            }
+        }.start()
+
+
     }
 
     private fun updateRemainingTime(remainingTimeSeconds: Int) {
