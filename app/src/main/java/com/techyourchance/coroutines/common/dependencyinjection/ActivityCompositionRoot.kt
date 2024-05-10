@@ -19,6 +19,7 @@ import com.techyourchance.coroutines.exercises.exercise8.GetUserEndpoint
 import com.techyourchance.coroutines.exercises.exercise8.UsersDao
 import com.techyourchance.coroutines.exercises.exercise1.GetReputationEndpoint
 import com.techyourchance.coroutines.exercises.exercise4.FactorialUseCase
+import com.techyourchance.coroutines.exercises.exercise5.GetReputationUseCaseEx5
 import com.techyourchance.coroutines.exercises.exercise6.Exercise6BenchmarkUseCase
 import com.techyourchance.coroutines.exercises.exercise6.PostBenchmarkResultsEndpoint
 import com.techyourchance.coroutines.exercises.exercise9.FetchAndCacheUsersUseCaseExercise9
@@ -32,6 +33,7 @@ class ActivityCompositionRoot(
         private val appCompositionRoot: ApplicationCompositionRoot
 ) {
 
+    val getReputationUseCaseEx5 get() = GetReputationUseCaseEx5(getReputationEndpointEx5)
     val toolbarManipulator get() = activity as ToolbarDelegate
 
     val screensNavigator: ScreensNavigator by lazy {
@@ -57,6 +59,7 @@ class ActivityCompositionRoot(
     private val userStateManager get() = UserStateManager()
 
     val getReputationEndpoint get() = GetReputationEndpoint()
+    private val getReputationEndpointEx5 get() = GetReputationEndpoint()
 
     val factorialUseCase get() = FactorialUseCase()
 
